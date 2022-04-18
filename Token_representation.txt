@@ -1,0 +1,17 @@
+LBRACKET -> Representa o caractere '{'
+RBRACKET --> Representa o caractere '}'
+LPAREN --> Representa o caractere '('
+RPAREN --> Representa o caractere ')'
+SEMICOLON --> Representa o ponto e virgula ';'
+COMMA --> Representa a virgula ','
+IF --> Representa a estrutura condicional 'if'
+ELSE --> Representa a estrutura condicional 'else'
+RETURN --> Representa o retorno de uma funçao 'return'
+VARSTRING --> Representa o tipo de dado 'string'
+VARINT --> Representa o tipo de dado 'int'
+WORD --> Representa um texto escrito entre aspas
+NUMBER --> Representa um numero inteiro
+BOOLEAN_OP --> Representa os seguintes operadores booleanos : '<', '>', '>='. '<=', '==', '!=', '!', '&&' e '||'
+ASSIGN --> Representa uma atribuição com o operador '='
+MATH_OP --> Representa os seguintes operadores matemáticos : '+', '-', '*', '/', '%'
+ID --> Representa um nome unico que deve conter ao menos uma letra seguida de outras letras ou numerais, usado para representar variaveis e nomes de funções
