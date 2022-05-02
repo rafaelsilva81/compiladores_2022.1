@@ -1,12 +1,12 @@
 def getNonTerminals(g):
     x = []
-    for k,v in grammar.items():
+    for k,v in g.items():
         x = x + [k]
     return x
 
 def getTerminals(g):
     x = []
-    for k,v in grammar.items():
+    for k,v in g.items():
         for rule in v:
             arr = rule.split()
             for item in arr:
@@ -57,8 +57,8 @@ def main():
     }
 
 
-    first = {} #array of sets
-    follow = {} #set
+    first = set() #array of sets
+    follow = set() #set
     nullable = set() #set
 
     nonTerminals = getNonTerminals(grammar)
