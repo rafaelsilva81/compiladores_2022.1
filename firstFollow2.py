@@ -2,15 +2,15 @@
 import re
 
 grammar = {
-    1: 'S -> S;S',
-    2: 'S -> id:=E',
-    3: 'S -> print(L)',
-    4: 'E -> id',
-    5: 'E -> num',
-    6: 'E -> E+E',
-    7: 'E -> (S,E)',
-    8: 'L -> E',
-    9: 'L -> L,E'
+    1: 'S->S;S',
+    2: 'S->id:=E',
+    3: 'S->print(L)',
+    4: 'E->id',
+    5: 'E->num',
+    6: 'E->E+E',
+    7: 'E->(S,E)',
+    8: 'L->E',
+    9: 'L->L,E'
 }
 
 
@@ -47,6 +47,7 @@ def firstOf(symbol):
             firstOfNonTerminal = firstOf(productionSymbol)
 
             if (EPSILON not in firstOfNonTerminal):
+                #print("Eu cai nessa parte do codigo")
                 merge(first, firstOfNonTerminal)
                 break
             
@@ -63,11 +64,13 @@ def getProductionsForSymbol(symbol):
     return productionsForSymbol
 
 def getLHS(production):
-    return production.split('->')[0].replace(r'\s+', '')
+    x = production.split('->')[0].replace(r'\s+', '')
+    return x #production.split('->')[0]
 
 def getRHS(production):
-    return production.split('->')[1].replace(r'\s+', '')
-
+    x = production.split('->')[1].replace(r'\s+', '')
+    return x #production.split('->')[1]
+    
 def buildFollowSets(grammar):
     followSet = {}
     buildSet(followOf)
@@ -124,30 +127,42 @@ def getProductionsWithSymbol(symbol):
     return productionsWithSymbol
 
 def isTerminal(symbol):
-    isNonTerminal = re.match(r"[A-Z]", symbol) #Checa se é não terminal
+    #print("Checking if ", symbol, " is a terminal")
+    isNonTerminal = re.match(r'[A-Z]', symbol) #Checa se é não terminal
+    #print(symbol, " Is a terminal? : ", not bool(isNonTerminal))
     return not bool(isNonTerminal) #Retorna invertendo o booleano
 
 def merge(destination, origin, exclude = []):
     for key in origin:
+        #print("Exclude this > ",exclude)
+        #print("This is origin > ", origin)
+        #print("This is destination > ", destination)
         if (key not in exclude):
             destination[key] = origin[key]
+
+        #print("This is the end > ", destination)
 
 def printSet(name, set):
     print(' ', name)
     for k in set:
-        for item in set[k]:
-            print(' ', k, ':', item)
+            s = "{ " + " | ".join(set[k]) + " }"
+            print(' ', k, ':', s)
 
 def main():
 
 
     buildFirstSets(grammar)
-    print("First : ", firstSet)
+    #print("First : ", firstSet)
 
     buildFollowSets(grammar)
-    print("Follow : ", followSet)
+    #print("Follow : ", followSet)
 
+    print("  Grammar")
+    for k in grammar:
+        print(" ",grammar[k])
+    print("\n")
     printSet("First", firstSet)
+    print("\n")
     printSet("Follow", followSet)
 
 if __name__ == "__main__":
