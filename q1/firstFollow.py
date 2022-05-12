@@ -1,36 +1,66 @@
 
+
 import re
 
-grammar = {
+#Gramatica antiga
+'''grammar = {
     1: 'S->S;S',
-    2: 'S->id:=E',
+    2: 'S->id := E',
     3: 'S->print(L)',
     4: 'E->id',
     5: 'E->num',
-    6: 'E->E+E',
+    6: 'E->E + E',
     7: 'E->(S,E)',
     8: 'L->E',
     9: 'L->L,E'
+}'''
+
+grammar = {
+    1: 'S-> B $',
+    2: 'B-> id P',
+    3: 'B-> id ( E ]',
+    4: 'P-> ',
+    5: 'P-> ( E )',
+    6: 'E-> B',
+    7: 'E-> B , E',
 }
 
-
 START_SYMBOL = 'S'
-EPSILON = "ε"
+EPSILON = " "
 firstSet = {}
 followSet = {}
 
+def getWholeWord(symbol, idx):
+    rhs = getRHS(grammar[idx])
+    pattern = re.compile("[^A-Z\s]")
+    word_idx = rhs.find(symbol) #Index de onde o symbolo foi encontrado
+    res = symbol
+    for x in range(word_idx, len(rhs)):
+        try:
+            a = rhs[x+1]
+        except IndexError:
+            #print("deu erro nesse : ", rhs)
+            return res #a palavra inteira passou
+        m = bool(re.match(pattern,a)) #Checar se o próximo caractere é um caractere maiusculo
+        if (not m):
+            break
+        else:
+            res = res + rhs[x+1]
+    return res
+    
 def buildFirstSets(grammar):
   firstSet = {}
   buildSet(firstOf)
 
-def firstOf(symbol):
+def firstOf(symbol, idx = 0):
     if (symbol in firstSet):
         return firstSet[symbol]
 
     first = firstSet[symbol] = {}
 
     if (isTerminal(symbol)):
-        first[symbol] = True
+        s = getWholeWord(symbol, idx)
+        first[s] = True
         return firstSet[symbol]
 
     productionsForSymbol = getProductionsForSymbol(symbol)
@@ -43,7 +73,7 @@ def firstOf(symbol):
                 first[EPSILON] = True
                 break
         
-            firstOfNonTerminal = firstOf(productionSymbol)
+            firstOfNonTerminal = firstOf(productionSymbol, p)
             if (EPSILON not in firstOfNonTerminal):
                 #print("Eu cai nessa parte do codigo")
                 merge(first, firstOfNonTerminal)
@@ -73,13 +103,14 @@ def buildFollowSets(grammar):
     followSet = {}
     buildSet(followOf)
 
-def followOf(symbol):
+def followOf(symbol, idx = 0):
     if (symbol in followSet):
         return followSet[symbol]
 
     follow = followSet[symbol] = {}
 
     if (symbol == START_SYMBOL):
+        #print("To caindo aqui")
         follow['$'] = True
 
     productionsWithSymbol = getProductionsWithSymbol(symbol)
@@ -98,9 +129,8 @@ def followOf(symbol):
                 break
             
             followSymbol = rhs[followIndex]
-
-            firstOfFollow = firstOf(followSymbol)
-
+            firstOfFollow = firstOf(followSymbol, p)
+            
             if (EPSILON not in firstOfFollow):
                 merge(follow, firstOfFollow)
                 break
@@ -112,7 +142,7 @@ def followOf(symbol):
 
 def buildSet(builder):
     for k in grammar:
-        builder(grammar[k][0])
+        builder(grammar[k][0], 0)
 
 def getProductionsWithSymbol(symbol):
     productionsWithSymbol = {}
@@ -140,11 +170,27 @@ def merge(destination, origin, exclude = []):
 
         #print("This is the end > ", destination)
 
-def printSet(name, set):
-    print(' ', name)
+def printFirstSet():
+    print("  ===== FIRST ===============")
+    set = firstSet
     for k in set:
-            s = "{ " + " | ".join(set[k]) + " }"
+            if(not isTerminal(k)):
+                s = "{ " + " | ".join(set[k]) + " }"
+                print(' ', k, ':', s)
+
+def printGrammar():
+    print("  ===== GRAMÁTICA ===============")
+    for k in grammar:
+        print(" ",grammar[k])
+
+
+def printFollowSet():
+    print("  ===== FOLLOW ===============")
+    set = followSet
+    for k in set:
+            s = "{  " + "".join(set[k]) + "  }"
             print(' ', k, ':', s)
+
 
 def main():
 
@@ -155,13 +201,10 @@ def main():
     buildFollowSets(grammar)
     #print("Follow : ", followSet)
 
-    print("  Grammar")
-    for k in grammar:
-        print(" ",grammar[k])
-    print("\n")
-    printSet("First", firstSet)
-    print("\n")
-    printSet("Follow", followSet)
+    
+    printGrammar()
+    printFirstSet()
+    printFollowSet()
 
 if __name__ == "__main__":
     main()

@@ -1,17 +1,19 @@
 
+
 import re
 
-grammar = {
+#Gramatica antiga
+'''grammar = {
     1: 'S->S;S',
-    2: 'S->id:=E',
+    2: 'S->id := E',
     3: 'S->print(L)',
     4: 'E->id',
     5: 'E->num',
-    6: 'E->E+E',
+    6: 'E->E + E',
     7: 'E->(S,E)',
     8: 'L->E',
     9: 'L->L,E'
-} 
+}'''
 
 
 START_SYMBOL = 'S'
@@ -19,22 +21,36 @@ EPSILON = "ε"
 firstSet = {}
 followSet = {}
 
-def getWholeWord(idx):
+def getWholeWord(symbol, idx):
     rhs = getRHS(grammar[idx])
-    pattern = re.compile("^[^A-Z\s]*")
-    #print(rhs)
-    #print(pattern)
-    res= "".join(re.findall(pattern,rhs))
+    pattern = re.compile("[^A-Z\s]")
+    word_idx = rhs.find(symbol) #Index de onde o symbolo foi encontrado
+    res = symbol
+    for x in range(word_idx, len(rhs)):
+        try:
+            a = rhs[x+1]
+        except IndexError:
+            #print("deu erro nesse : ", rhs)
+            return res #a palavra inteira passou
+        m = bool(re.match(pattern,a)) #Checar se o próximo caractere é um caractere maiusculo
+        if (not m):
+            break
+        else:
+            res = res + rhs[x+1]
     return res
+    
+def buildFirstSets(grammar):
+  firstSet = {}
+  buildSet(firstOf)
 
-def firstOf(symbol, idx=0):
+def firstOf(symbol, idx = 0):
     if (symbol in firstSet):
         return firstSet[symbol]
 
     first = firstSet[symbol] = {}
 
     if (isTerminal(symbol)):
-        s = getWholeWord(idx)
+        s = getWholeWord(symbol, idx)
         first[s] = True
         return firstSet[symbol]
 
@@ -44,9 +60,7 @@ def firstOf(symbol, idx=0):
 
         for i in range(len(production)):
             productionSymbol = production[i]
-            #print(productionSymbol)
             if (productionSymbol == EPSILON):
-                #print("CAI AQUI")
                 first[EPSILON] = True
                 break
         
@@ -76,7 +90,11 @@ def getRHS(production):
     x = production.split('->')[1].replace(r'\s+', '')
     return x #production.split('->')[1]
     
-def followOf(symbol):
+def buildFollowSets(grammar):
+    followSet = {}
+    buildSet(followOf)
+
+def followOf(symbol, idx = 0):
     if (symbol in followSet):
         return followSet[symbol]
 
@@ -113,6 +131,10 @@ def followOf(symbol):
     
     return follow
 
+def buildSet(builder):
+    for k in grammar:
+        builder(grammar[k][0], 0)
+
 def getProductionsWithSymbol(symbol):
     productionsWithSymbol = {}
     for k in grammar:
@@ -124,8 +146,6 @@ def getProductionsWithSymbol(symbol):
     return productionsWithSymbol
 
 def isTerminal(symbol):
-    if (symbol == EPSILON):
-        return False
     #print("Checking if ", symbol, " is a terminal")
     isNonTerminal = re.match(r'[A-Z]', symbol) #Checa se é não terminal
     #print(symbol, " Is a terminal? : ", not bool(isNonTerminal))
@@ -141,28 +161,41 @@ def merge(destination, origin, exclude = []):
 
         #print("This is the end > ", destination)
 
-def printSet(name, set):
-    print(' ', name)
+def printFirstSet():
+    print("  ===== FIRST ===============")
+    set = firstSet
+    for k in set:
+            if(not isTerminal(k)):
+                s = "{ " + " | ".join(set[k]) + " }"
+                print(' ', k, ':', s)
+
+def printGrammar():
+    print("  ===== GRAMÁTICA ===============")
+    for k in grammar:
+        print(" ",grammar[k])
+
+
+def printFollowSet():
+    print("  ===== FOLLOW ===============")
+    set = followSet
     for k in set:
             s = "{ " + " | ".join(set[k]) + " }"
             print(' ', k, ':', s)
 
+
 def main():
 
-    #print(getWholeWord("S", 2))
-    firstOf(START_SYMBOL, 0)
+
+    buildFirstSets(grammar)
     #print("First : ", firstSet)
 
-    followOf(START_SYMBOL)
+    buildFollowSets(grammar)
     #print("Follow : ", followSet)
 
-    print("  Grammar")
-    for k in grammar:
-        print(" ",grammar[k])
-    print("\n")
-    printSet("First", firstSet)
-    print("\n")
-    printSet("Follow", followSet)
+    
+    printGrammar()
+    printFirstSet()
+    printFollowSet()
 
 if __name__ == "__main__":
     main()
