@@ -19,14 +19,14 @@ grammar = {
     1: 'S-> B $',
     2: 'B-> id P',
     3: 'B-> id ( E ]',
-    4: 'P-> ',
+    4: 'P-> ɛ',
     5: 'P-> ( E )',
     6: 'E-> B',
     7: 'E-> B , E',
 }
 
 START_SYMBOL = 'S'
-EPSILON = " "
+EPSILON = "ɛ"
 firstSet = {}
 followSet = {}
 
@@ -92,11 +92,11 @@ def getProductionsForSymbol(symbol):
     return productionsForSymbol
 
 def getLHS(production):
-    x = production.split('->')[0].replace(r'\s+', '')
+    x = production.split('->')[0].replace(" ", '')
     return x #production.split('->')[0]
 
 def getRHS(production):
-    x = production.split('->')[1].replace(r'\s+', '')
+    x = production.split('->')[1].replace(" ", '')
     return x #production.split('->')[1]
     
 def buildFollowSets(grammar):
@@ -175,7 +175,7 @@ def printFirstSet():
     set = firstSet
     for k in set:
             if(not isTerminal(k)):
-                s = "{ " + " | ".join(set[k]) + " }"
+                s = " " + "   ".join(set[k]) + " "
                 print(' ', k, ':', s)
 
 def printGrammar():
@@ -188,7 +188,7 @@ def printFollowSet():
     print("  ===== FOLLOW ===============")
     set = followSet
     for k in set:
-            s = "{  " + "".join(set[k]) + "  }"
+            s = "  " + "  ".join(set[k]) + "  "
             print(' ', k, ':', s)
 
 
