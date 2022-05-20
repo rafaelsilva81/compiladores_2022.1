@@ -1,0 +1,11 @@
+checar chamada de variavel
+    dentro de uma funcao
+    dentro do if
+    dentro do print
+    no retorno de uma funcao
+    checar se a variavel é do escopo
+checar chamada de funcao
+    checar se funcao existe
+    checar se os argumentos passados sao de tipos compativeis
+
+fazer funcao auxiliar para checar tipos incompativeis
