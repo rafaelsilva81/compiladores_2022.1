@@ -1,11 +1,11 @@
 import re
 import pprint
-from errors import incompTypes, notDeclared, outOfScope
+from errors import argIncompTypes, incompTypes, notDeclared, outOfScope, paramCountErr
 from lexical.lexer import tokenize #Importação do analisador léxico trabalho 01
 
 """ 
     Classe para tratamento de Erros semanticos
-    Essa classe ASSUME que não há nenhum erro léxico ou sintático nos Tokens
+    Essa classe ASSUME que não há nenhum erro léxico ou sintático no input do usuário
 """
 class Semantic():
 
@@ -33,12 +33,13 @@ class Semantic():
 
             declaredFunctions = {
                 'ID(somar)' : {
-                    'returnType' : 'VARINT',
+                    'type' : 'VARINT',
                     'parameters' : ['VARINT', 'VARINT']
                 }
             }
 
         """
+        self.ignoreRbrackets = 0
         self.lineCount = 0
         self.previousScope = "global" #Define o escopo anterior
         self.currentScope = "global" #Define o escopo atual
@@ -48,56 +49,26 @@ class Semantic():
     def semanticTest(self, content):
         self.lineCount = 1
         for line in content:
+            #print(tokenize(line))
             self.checkLine(tokenize(line))
             self.lineCount += 1
 
-    def getValType(self, declaration):
-        x = re.findall(r'(NUMBER|WORD)', ''.join(declaration))
+    def getIds(self, declaration):
+        x = re.findall(r'ID\([A-Za-z]+[A-Za-z0-9#]*\)', ''.join(declaration))
         return x
-
-    #Entrada : VARTYPE esperado e array de VARVALUES recebidos
-    def checkCompatibleType(self, expectedType, receivedValues, var_id):
-        for received in receivedValues:
-            if (self.VALCOMB[expectedType] != received):
-                incompTypes(expectedType, var_id, self.lineCount)
-                return False
-        return True
-
-    def checkIds(self, declaredType, ids, var_id):
-        if (ids != []):
-            #Checar variaveis atribuidas a outra variavel (exemplo : int x = a + b;)
-            #Esse bloco do código irá checar se essa invocação de a e b é correta   
-            for i in ids:
-                #Iterar sobre os ids encontrados na declaração da variável
-                if(i not in self.declaredVariables): 
-                    #Variável não declarada
-                    notDeclared(var_id, i, self.lineCount)
-                    return False
-                elif(self.declaredVariables[i]['scope'] != self.currentScope and self.declaredVariables[i]['scope'] != self.previousScope): 
-                    #Variaveis em escopos diferentes
-                    outOfScope(var_id, i, self.lineCount)
-                    return False
-                elif(self.VALCOMB[declaredType] != self.VALCOMB[self.declaredVariables[i]['type']]):
-                    #A variavel declarada tem tipos incompativeis com a variavel que lhe foi atribuida
-                    incompTypes(self.VALCOMB[declaredType], var_id, self.lineCount)
-                    return False
-        return True
-                    
-    def getId(self, tokenArr):
-        x = re.findall(r'ID\([A-Za-z]+[A-Za-z0-9#]*\)', ''.join(tokenArr))
-        return x
-
+        
     # Entrada : array de tokens
     # Essa função checa a linha, decidindo o que deve ser feito em seguida
     def checkLine(self, tokenArr):
         # CASO 1 --> LINHA VAZIA
         if (tokenArr == []): return
         # CASO 1 --> DECLARAÇÃO DE NOVO VARTYPE (var ou funcao)
-        if (tokenArr[0] in self.VARTYPES): #Uma variável foi declarada
+        if (tokenArr[0] in self.VARTYPES): #Um vartype foi declarado no começo da linha
 
             # ------- Casos onde o ID é uma função ----------- #
-            if ('LBRACKET' in tokenArr): #Abertura de chaves encontrada, a linha é uma função
-
+            if ('LBRACKET' in tokenArr and ('MATH_OP' not in tokenArr or 'ASSIGN' not in tokenArr)): 
+                #Abertura de chaves encontrada
+                #Não ha atribuição ou operação matematica linha é uma função
                 self.previousScope = self.currentScope #Define o antigo escopo
                 self.currentScope = tokenArr[1] #Definição do escopo atual
     
@@ -131,42 +102,117 @@ class Semantic():
             self.currentScope = self.previousScope
             self.previousScope = aux
         # CASO 3 --> CHAMADA DE VARTYPE JÁ DEFINIDA (var ou func)
-        elif(self.getId(tokenArr) != []): #A linha possui um ou mais IDS
+        elif(self.getIds(tokenArr) != []): #A linha possui um ou mais IDS
             #A linha não possui a abertura de uma função nem uma definição de tipo
             if(('LBRACKET' not in tokenArr) and ('VARINT' not in tokenArr) and ('VARSTRING' not in tokenArr)): 
+                ids = self.getIds(tokenArr) #Obter todos os ids
+                functions = self.getFunctions(ids)
+                variables = self.getVariables(ids)
+                # Checar se algum dos ids é uma variavel/função não declarada
+                for i in ids:
+                    if i not in functions and i not in variables:
+                        notDeclared(i, self.lineCount)
+                # Caso existe alguma função, obter os argumentos enviados dessa função
+                if functions != []:
+                    for f in functions:
+                        self.checkFunctionArguments(f, tokenArr)
+                if variables != []:
+                    for v in variables:
+                        var_scope = self.declaredVariables[v]['scope']
+                        if (var_scope != self.currentScope and var_scope != 'global'):
+                            outOfScope(v, self.lineCount)
                 # ------- Casos onde a chamada é um retorno de função ----------- #
-                if ('RETURN' in tokenArr):
-                    scope = self.currentScope
-                    if (scope != 'global'):
-                        func = self.declaredFunctions[scope]
-                        functionType = func['type'] #Pega o tipo esperado do escopo atual
-                        ids = self.getId(tokenArr) #Obter todos os ids da linha
-                        self.checkIds(functionType, ids, scope)
 
     def addDeclaredVariable(self, line):
         declaredType = line[0] #Tipo declarado
         var_id = line[1] #Id da variável
         declaration = line[3:] #Declaração
         var_detail = {'type': declaredType, 'scope':self.currentScope} #Detahes da variável
-        ids = self.getId(declaration) #Obter os ids dentro da declaração
+        ids = self.getIds(declaration) #Obter os ids dentro da declaração
         if (ids != []): #A variavel é declarada como outra variável (exemplo : int x = a;)
             
-            valType = self.getValType(declaration)
-            self.checkCompatibleType(declaredType, valType, var_id)
+            if (('NUMBER' in declaration) or ('WORD' in declaration)):
+                #A variável declarada como um id e algum valor (exemplo : int x = a + 2;)
+                if((declaredType == 'VARINT' and 'WORD' in declaration)): # VARINT declarada recebeu uma string (incompativel)
+                    incompTypes(expectedType='VARINT', var=var_id, line=self.lineCount)
 
-            self.checkIds(declaredType, ids, var_id)
-            
+            #Checar variaveis atribuidas a outra variavel (exemplo : int x = a + b;)
+            #Esse bloco do código irá checar se essa invocação de a e b é correta   
+            for i in ids:
+                #Iterar sobre os ids encontrados na declaração da variável
+                if(i not in self.declaredVariables): 
+                    #Variável não declarada
+                    notDeclared(i, self.lineCount)
+                elif(self.declaredVariables[i]['scope'] != self.currentScope and self.declaredVariables[i]['scope'] != self.previousScope): 
+                    #Variaveis em escopos diferentes
+                    outOfScope(var_id, self.lineCount)
+                elif(self.VALCOMB[declaredType] != self.VALCOMB[self.declaredVariables[i]['type']]):
+                    #A variavel declarada tem tipos incompativeis com a variavel que lhe foi atribuida
+                    incompTypes(self.VALCOMB[declaredType], var_id, self.lineCount)
             self.declaredVariables[var_id] = var_detail
         
         elif (('NUMBER' in declaration) or ('WORD' in declaration)):
                 #A variável declarada como um id e algum valor (exemplo : int x = a + 2;)
-                valType = self.getValType(declaration)
-                x = self.checkCompatibleType(declaredType, valType, var_id)
-                if(x is True): 
+                if((declaredType == 'VARINT' and 'WORD' in declaration)): # VARINT declarada recebeu uma string (incompativel)
+                    incompTypes('VARINT', var_id, self.lineCount)
+                else:
                     self.declaredVariables[var_id] = var_detail 
         else:
             #Variável declarada, sem valor atriubido (exemplo : int x;)
             self.declaredVariables[var_id] = var_detail
+
+    """ Função auxiliar que recebe um array de ids
+    e retorna todos ids que representam uma função declarada """
+    def getFunctions(self, idArr):
+        functions = []
+        for varid in idArr:
+            if varid in self.declaredFunctions:
+                functions.append(varid)
+        return functions
+
+    """ Função auxiliar que recebe um array de ids
+    e retorna todos ids que representam uma variável declarada """
+    def getVariables(self, idArr):
+        variables = []
+        for varid in idArr:
+            if varid in self.declaredVariables:
+                variables.append(varid)
+        return variables
+
+    def checkFunctionArguments(self, function, line):
+        func_idx = line.index(function) #Pega o index de onde está o id da função na linha
+        declaration = line[func_idx+2:line.index('RPAREN')+1] #Pega a declaração do caractere seguinte ao ID da função até o primeiro ')'
+        aux = declaration
+        if ('LPAREN' in declaration):
+            idx = declaration.index('LPAREN')
+            declaration = declaration[:idx]
+        received_ids = self.getIds(declaration)
+        received_params = [s for s in declaration if s in received_ids or s == 'NUMBER' or s == 'WORD']
+        expected_params = self.declaredFunctions[function]['parameters']
+        for i in range(len(expected_params)):
+            if received_params[i] in received_ids: #Se o argumento se trata de um ID
+                if (received_params[i] in self.declaredFunctions):
+                    self.checkFunctionArguments(received_params[i], aux)
+                    received_params[i] = self.declaredFunctions[received_params[i]]['type'] #Transformar o id no tipo dele
+                     #Se trata de uma funcao
+                else:
+                    scope = self.declaredVariables[received_params[i]]['scope']
+                    if (scope != self.currentScope and scope != 'global'):
+                        outOfScope(received_params[i], self.lineCount)
+                    received_params[i] = self.declaredVariables[received_params[i]]['type'] #Transformar o id recebido no tipo dele
+            else: #O argumento recebido não é um ID
+                if (received_params[i] == 'WORD'):
+                    received_params[i] = "VARSTRING" #Obter tipo de acordo
+                elif(received_params[i] == 'NUMBER'):
+                    received_params[i] = "VARINT"
+            
+            if received_params[i] != expected_params[i]:
+                argIncompTypes(expected_params[i], i, function, self.lineCount)
+
+            if ((len(received_params)) != len(expected_params)):
+                paramCountErr(function, self.lineCount)
+            
+
 
 def main():
     separated = []
@@ -182,5 +228,6 @@ def main():
     print("\n Funções declaradas : ")
     pprint.pprint(s.declaredFunctions, sort_dicts=False)
     
+    print("\n  SUCESSO!")
 if __name__ == "__main__":
     main()

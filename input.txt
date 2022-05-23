@@ -1,10 +1,14 @@
-int fun (int a , int b) {
-    return a + b;
+int fun(int x , int y) {
+    return x + y;
 }
 
-int main () {
-    int a = 3;
-    int b = 5;
-    int c = a + b;
-    return c + fun(a , b);
+string getNome(string nome) {
+    return "NOME : " + nome
+}
+
+int main() {
+    int a=3;
+    int b=5;
+    int c=a + b;
+    return fun(a, fun(3,3)) + fun(a,fun(2,fun(2,3)));
 }
