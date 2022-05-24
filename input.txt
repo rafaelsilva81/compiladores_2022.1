@@ -10,9 +10,9 @@ string getNome(string nome) {
 }
 
 int main() {
-    int a=3;
-    int b=5;
-    int c=a + b;
+    int a = 3;
+    int b = 5;
+    int c = a + b;
     string nome;
     a = 10;
     return 2 + 3
