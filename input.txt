@@ -1,6 +1,9 @@
-int fun(int x , int y) {
+string a = "nome"; {a = "a";}
+
+int fun(int x, int y) {
     return x + y;
 }
+
 
 string getNome(string nome) {
     return "NOME : " + nome
@@ -10,5 +13,7 @@ int main() {
     int a=3;
     int b=5;
     int c=a + b;
-    return fun(a, fun(3,3)) + fun(a,fun(2,fun(2,3)));
+    string nome;
+    a = 10;
+    return 2 + 3
 }
