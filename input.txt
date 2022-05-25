@@ -1,25 +1,16 @@
-string a = "nome"; 
+string a = "nome1"; { a = 10; }
 
-int fun(int x, int y) {
-    return x + y;
+int fun ( int a , int b ) {
+    return a + b;
 }
 
-
-string getNome(string nome) {
-    return "NOME : " + nome
+string getNome(){
+    return "Rafael galdino da Silva";
 }
 
-int main() {
-
-    if (a == 10) {
-        if (x == 10) {
-            x = 50
-        }
-    }
-    int a = 3;
-    int b = 5;
-    int a = 8;
-    string nome = getNome();
-    a = 10;
-    return 2 + 3
+int main ( ) {
+    int a, b = 10;
+    int c;
+    a = 3 + c;
+    return a + fun(a , b);
 }
