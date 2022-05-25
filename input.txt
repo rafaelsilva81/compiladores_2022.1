@@ -1,4 +1,4 @@
-string a = "nome"; {a = "a";}
+string a = "nome"; 
 
 int fun(int x, int y) {
     return x + y;
@@ -10,10 +10,16 @@ string getNome(string nome) {
 }
 
 int main() {
+
+    if (a == 10) {
+        if (x == 10) {
+            x = 50
+        }
+    }
     int a = 3;
     int b = 5;
-    int c = a + b;
-    string nome;
+    int a = 8;
+    string nome = getNome();
     a = 10;
     return 2 + 3
 }

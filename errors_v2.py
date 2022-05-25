@@ -1,5 +1,8 @@
 import sys
 
+def impossibleOperation(var):
+     print("Erro => Operação matemática impossivel na variável: " + var)
+     #sys.exit()
 
 def incompTypes(expectedType, var):
      print("Erro => Tipos incompatíveis, tipo esperado " + expectedType + " Na variável " + var)
