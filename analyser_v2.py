@@ -1,7 +1,7 @@
-import re
-import pprint
-import uuid
-import itertools
+import re #regex
+import pprint #prettyprint
+import uuid #ids aleatórios
+import itertools #ferramentas de iteraçao
 
 from errors_v2 import impossibleOperation, incompTypes, notDeclared, outOfScope, returnIncompTypes
 from lexical.lexer import tokenize #Importação do analisador léxico trabalho 01
@@ -20,7 +20,7 @@ class Semantic():
     } #Define os tipos de valor disponível, ligado com os tipos correspondentes
 
     def __init__(self):
-        """
+        """ FORMATO DAS ESTRUTURAS DE DADOS:
             declaredVariables = {
                 ID(a): {
                     ID(main) : 'VARSTRING',
@@ -47,9 +47,10 @@ class Semantic():
         self.declaredScopes[self.GLOBALSCOPE] = globalScopeDetails
 
     def openBlock(self, line):
-        uid = "BLOCK_"+str(uuid.uuid4())[:3]
+        uid = "BLOCK_"+str(uuid.uuid4())[:5] #id aleatorio para o bloco
         self.changeScope(uid)
-
+        if(len(line) > 1):
+            self.checkLine(line[1:])
     #Recebe uma linha já identificada como return
     def returnStatement(self, line):
         scope = ""
@@ -71,7 +72,7 @@ class Semantic():
 
     #Recebe uma linha já identificada como um ELSE
     def elseStatement(self, line):
-        uid = "ELSE_"+str(uuid.uuid4())[:3]
+        uid = "ELSE_"+str(uuid.uuid4())[:5] #id aleatorio pro escopo
         self.changeScope(scope=uid)
         
     #Recebe uma linha já identificada como um IF ou ELSE IF
@@ -80,7 +81,7 @@ class Semantic():
         for i in ids:
             if i not in self.declaredScopes and i not in self.declaredVariables: #checar se as condições do if sao declaradas
                 notDeclared(i)
-        uid = "IF_"+str(uuid.uuid4())[:3]
+        uid = "IF_"+str(uuid.uuid4())[:5] #id aleatorio
         self.changeScope(scope=uid)
 
     #Retorna todos os primitivos (NUMBER, WORD) de uma declaração
@@ -218,7 +219,6 @@ class Semantic():
             else:
                 incompTypes(vartype)
 
-
     #Quebrar pontos e virgulas
     def breakLine(self, content):
         result = []
@@ -321,12 +321,15 @@ def main():
     
     s.semanticTest(content)
     
+    # RETIRE ESSE BLOCO DE COMENTÁRIO PARA MOSTRAR TODAS AS VARIÁVEIS E ESCOPOS DECLARADOS
     print("\n Variáveis declaradas : ")
     pprint.pprint(s.declaredVariables, sort_dicts=False) #Pretty print
     print("\n Escopos declarados : ")
     pprint.pprint(s.declaredScopes, sort_dicts=False)
+    print("\n")
+    
 
-    print("\nSUCESSO!")
+    print("SUCESSO!")
 
 if __name__ == "__main__":
     main()

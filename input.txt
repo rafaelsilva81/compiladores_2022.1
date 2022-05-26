@@ -1,4 +1,4 @@
-string a = "nome1"; { a = 10; }
+string a = "nome1"; { a = "feijao"; }
 
 int fun ( int a , int b ) {
     return a + b;

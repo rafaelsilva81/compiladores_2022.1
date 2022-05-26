@@ -1,6 +1,9 @@
 import re
-import uuid #Adicionado para esse trabalho
 
+"""
+    ANALISADOR LÉXICO DA LINGUAGEM A
+    TRANSFORMA A ENTRADA DO USUARIO EM TOKENS VÁLIDOS
+"""
 tokens = {
     "LBRACKET" : r"(\{)",
     "RBRACKET" : r"(\})",
@@ -10,7 +13,6 @@ tokens = {
     "COMMA" : r"(\,)",
     "ELSE" : r"(else)",
     "IF" : r"(if)",
-    "PRINT" : r"(print)", #Adicionado para esse trabalho
     "RETURN" : r"(return)",
     "VARSTRING" : r"(string)",
     "VARINT" : r"(int)",

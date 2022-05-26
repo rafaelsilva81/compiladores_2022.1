@@ -1,3 +1,4 @@
+""" ARQUIVO PARA DEFINIÇÃO DE ERROS SEMANTICOS """
 import sys
 
 def impossibleOperation(var):
