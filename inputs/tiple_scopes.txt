@@ -1,0 +1,18 @@
+int x = 3;
+
+int main() {
+    int a = 2;
+    a = 10;
+    {
+        int b = 5;
+        if(a >= 3 && a < 10) {
+            string x = "teste";
+            b = 40;
+        }
+        
+    }
+
+    b = 10;
+
+    return 0;
+}

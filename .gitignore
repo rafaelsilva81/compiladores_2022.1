@@ -4,11 +4,15 @@
 ### Python ###
 # Byte-compiled / optimized / DLL files
 __pycache__/
+trabalho.pdf
 *.py[cod]
 *$py.class
 
 # C extensions
 *.so
+
+# Codigo antigo
+legacy/
 
 # Distribution / packaging
 .Python
@@ -22,6 +26,7 @@ lib/
 lib64/
 parts/
 sdist/
+
 var/
 wheels/
 share/python-wheels/
