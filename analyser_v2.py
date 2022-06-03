@@ -2,6 +2,7 @@ import re #regex
 import pprint #prettyprint
 import uuid #ids aleatórios
 import itertools #ferramentas de iteraçao
+import os #ferramentas do sistema operacional
 
 from errors_v2 import impossibleOperation, incompTypes, notDeclared, outOfScope, returnIncompTypes
 from lexical.lexer import tokenize #Importação do analisador léxico trabalho 01
@@ -45,6 +46,13 @@ class Semantic():
         globalScopeDetails['type'] = 'VOID'
         globalScopeDetails['reachableScopes'] = [self.GLOBALSCOPE]
         self.declaredScopes[self.GLOBALSCOPE] = globalScopeDetails
+
+    def showScopesAndVariables(self):
+        print("\n Variáveis declaradas : ")
+        pprint.pprint(self.declaredVariables, sort_dicts=False) #Pretty print
+        print("\n Escopos declarados : ")
+        pprint.pprint(self.declaredScopes, sort_dicts=False)
+        print("\n")
 
     def openBlock(self, line):
         uid = "BLOCK_"+str(uuid.uuid4())[:5] #id aleatorio para o bloco
@@ -316,20 +324,28 @@ class Semantic():
             
 def main():
     s = Semantic()
+
+    # Para testes com todos os inputs dentro da pasta /inputs
+    for file in os.listdir("./inputs"):
+        if file.endswith(".txt"):
+            path = os.path.join("./inputs", file)
+            with open(path, encoding='utf8') as f:
+                content = f.readlines()
+            print("TESTE DO ARQUIVO:", path)
+            s.semanticTest(content)
+            # s.showScopesAndVariables() #Para mostrar escopos e variaveis (opcional)
+            print("SUCESSO!") #Só vai chegar aqui se não tiver nenhum erro
+    
+    """
+    # Para testes com um unico input
     with open('input.txt', encoding='utf8') as f:
         content = f.readlines()
     
     s.semanticTest(content)
+    # s.showScopesAndVariables() #Para mostrar escopos e variaveis (opcional)
+    print("SUCESSO!") #Só vai chegar aqui se não tiver nenhum erro
+    """
     
-    # RETIRE ESSE BLOCO DE COMENTÁRIO PARA MOSTRAR TODAS AS VARIÁVEIS E ESCOPOS DECLARADOS
-    print("\n Variáveis declaradas : ")
-    pprint.pprint(s.declaredVariables, sort_dicts=False) #Pretty print
-    print("\n Escopos declarados : ")
-    pprint.pprint(s.declaredScopes, sort_dicts=False)
-    print("\n")
-    
-
-    print("SUCESSO!")
 
 if __name__ == "__main__":
     main()
