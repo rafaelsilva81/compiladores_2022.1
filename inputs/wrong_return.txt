@@ -1,0 +1,5 @@
+string func(int x) {
+    return x;
+}
+
+string x = func(3);

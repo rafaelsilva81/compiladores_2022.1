@@ -1,0 +1,9 @@
+string x;
+
+int main() {
+    int a = 30;
+
+    if (a > 2) {
+        x = a;
+    }
+}
