@@ -1,7 +1,0 @@
-int func(int x) {
-    return x + 2;
-}
-
-int a;
-a = 20;
-int d = func(3) + a;
