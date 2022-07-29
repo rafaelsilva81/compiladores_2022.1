@@ -1,0 +1,16 @@
+string a = "nome1"; { a = "feijao"; }
+
+int fun ( int a , int b ) {
+    return a + b;
+}
+
+string getNome(){
+    return "Rafael galdino da Silva";
+}
+
+int main () {
+    int a, b = 10;
+    int c;
+    a = 3 + c;
+    return a + fun(a , b);
+}

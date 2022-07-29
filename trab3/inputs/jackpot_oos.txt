@@ -1,0 +1,22 @@
+int credits;
+string jackpot = "JACKPOT!"
+
+{
+    if (jackpot == "JACKPOT!") {
+        credits = 777;
+    } else if (jackpot == "LOSE") {
+        credits = 0;
+    }
+}
+
+
+int main() {
+    if (credits == 0) {
+        jackpot = "JACKPOT!";
+    } else {
+        int bonus = credits / 2;
+        credits = credits + bonus;
+    }
+
+    bonus = credits;
+}

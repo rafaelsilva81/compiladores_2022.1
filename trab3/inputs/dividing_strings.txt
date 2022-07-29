@@ -1,0 +1,13 @@
+
+int main() {
+
+    string x;
+    string y;
+    
+    x = "Teste"
+    y = "Teste 2"
+
+    string z = x / y;
+    
+    return 0;
+}
